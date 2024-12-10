@@ -23,10 +23,6 @@ logging.basicConfig(level=logging.INFO,
 
 
 class ExtrinsicsShovel(ShovelBaseClass):
-    def __init__(self, name):
-        super().__init__(name)
-        self.starting_block = 4400892
-
     def process_block(self, n):
         do_process_block(n)
 

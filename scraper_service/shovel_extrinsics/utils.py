@@ -77,6 +77,7 @@ type_map = {
     "info__web__Raw0": "String",
     "calls": "Array(String)",
     "call__call_args": "Array(String)",
+    "transaction__EIP1559__access_list": "Array(String)",
     "children": "Array(Tuple(UInt64, String))",
 }
 
