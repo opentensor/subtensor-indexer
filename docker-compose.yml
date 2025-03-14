@@ -45,187 +45,209 @@ services:
       - 'host.docker.internal:host-gateway'
     tty: true
 
-  shovel_extrinsics:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_extrinsics/Dockerfile
-    container_name: shovel_extrinsics
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_extrinsics:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_extrinsics/Dockerfile
+  #   container_name: shovel_extrinsics
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_events:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_events/Dockerfile
-    container_name: shovel_events
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_events:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_events/Dockerfile
+  #   container_name: shovel_events
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_stake_map:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_stake_map/Dockerfile
-    container_name: shovel_stake_map
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_stake_map:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_stake_map/Dockerfile
+  #   container_name: shovel_stake_map
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_hotkey_owner_map:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_hotkey_owner_map/Dockerfile
-    container_name: shovel_hotkey_owner_map
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_hotkey_owner_map:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_hotkey_owner_map/Dockerfile
+  #   container_name: shovel_hotkey_owner_map
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_subnets:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_subnets/Dockerfile
-    container_name: shovel_subnets
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: always
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_subnets:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_subnets/Dockerfile
+  #   container_name: shovel_subnets
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: always
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_daily_stake:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_daily_stake/Dockerfile
-    container_name: shovel_daily_stake
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_daily_stake:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_daily_stake/Dockerfile
+  #   container_name: shovel_daily_stake
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_daily_balance:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_daily_balance/Dockerfile
-    container_name: shovel_daily_balance
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_daily_balance:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_daily_balance/Dockerfile
+  #   container_name: shovel_daily_balance
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_tao_price:
-    build:
-      context: ./scraper_service
-      dockerfile: ./shovel_tao_price/Dockerfile
-    container_name: shovel_tao_price
-    depends_on:
-      clickhouse:
-        condition: service_started
-    env_file:
-      - .env
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '10m'
-        max-file: '3'
-    networks:
-      - app_network
-    restart: on-failure
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    tty: true
+  # shovel_tao_price:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_tao_price/Dockerfile
+  #   container_name: shovel_tao_price
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
 
-  shovel_alpha_to_tao:
+  # shovel_alpha_to_tao:
+  #   build:
+  #     context: ./scraper_service
+  #     dockerfile: ./shovel_alpha_to_tao/Dockerfile
+  #   container_name: shovel_alpha_to_tao
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_started
+  #   env_file:
+  #     - .env
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '10m'
+  #       max-file: '3'
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
+  #   extra_hosts:
+  #     - 'host.docker.internal:host-gateway'
+  #   tty: true
+
+  shovel_validators:
     build:
       context: ./scraper_service
-      dockerfile: ./shovel_alpha_to_tao/Dockerfile
-    container_name: shovel_alpha_to_tao
+      dockerfile: ./shovel_validators/Dockerfile
+    container_name: shovel_validators
     depends_on:
       clickhouse:
         condition: service_started

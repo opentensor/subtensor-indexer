@@ -17,8 +17,8 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY ./shared /app/shared
-COPY ./shovel_block_timestamp /app/shovel_block_timestamp
+COPY ./shovel_validators /app/shovel_validators
 
 ENV PYTHONPATH="/app:/app/shared"
 
-CMD ["python", "-u", "shovel_block_timestamp/main.py"]
+CMD ["python", "-u", "shovel_validators/main.py"]

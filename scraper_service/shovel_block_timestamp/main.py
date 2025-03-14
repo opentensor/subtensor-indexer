@@ -16,6 +16,10 @@ logging.basicConfig(level=logging.INFO,
 class BlockTimestampShovel(ShovelBaseClass):
     table_name = "shovel_block_timestamps"
 
+    def __init__(self, name):
+        super().__init__(name)
+        self.starting_block = 4920351
+
     def process_block(self, n):
         do_process_block(self, n)
 

@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-from substrateinterface import SubstrateInterface
+from async_substrate_interface import SubstrateInterface
 import threading
 
 thread_local = threading.local()
