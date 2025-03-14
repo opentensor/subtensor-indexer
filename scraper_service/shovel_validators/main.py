@@ -20,6 +20,11 @@ def decode_account_id(account_id_bytes: Union[tuple[int], tuple[tuple[int]]]):
         account_id_bytes = account_id_bytes[0]
     return ss58_encode(bytes(account_id_bytes).hex(), SS58_FORMAT)
 
+def decode_string(string: Union[str, tuple[int]]):
+    if isinstance(string, str):
+        return string
+    return bytes(string).decode('utf-8')
+
 logging.basicConfig(level=logging.INFO,
                    format="%(asctime)s %(process)d %(message)s")
 
@@ -54,64 +59,48 @@ def calculate_apy_from_daily_return(return_per_1000: float, compounding_periods:
     apy = ((1 + (daily_return / compounding_periods)) ** (compounding_periods * 365)) - 1
     return round(apy * 100, 3)
 
-@lru_cache
-def create_storage_key_cached(pallet, storage, args):
-    return get_substrate_client().create_storage_key(pallet, storage, list(args))
-
 def get_subnet_uids(substrate, block_hash: str) -> List[int]:
     try:
         result = substrate.runtime_call(
             api="SubnetInfoRuntimeApi",
             method="get_subnets_info",
-            params=[]
+            params=[],
+            block_hash=block_hash
         )
-        subnet_info = result
+        subnet_info = result.value
+
         return [info['netuid'] for info in subnet_info if 'netuid' in info]
     except Exception as e:
         logging.error(f"Failed to get subnet UIDs: {str(e)}")
         return []
 
-def get_active_validators(substrate, block_hash: str) -> List[str]:
+def get_active_validators(substrate, block_hash: str, delegate_info) -> List[str]:
     try:
-        result = substrate.runtime_call(
-            api="DelegateInfoRuntimeApi",
-            method="get_delegates",
-            params=[]
-        )
-
-        delegate_info = result.value
         return [decode_account_id(delegate['delegate_ss58']) for delegate in delegate_info if 'delegate_ss58' in delegate]
     except Exception as e:
         logging.error(f"Failed to get active validators: {str(e)}")
         return []
 
-def is_registered_in_subnet(substrate, net_uid: int, address: str) -> bool:
+def is_registered_in_subnet(substrate, net_uid: int, address: str, block_hash: str) -> bool:
     try:
-        key = create_storage_key_cached("subtensorModule", "uids", [net_uid, address])
-        result = substrate.query_map(key)
+        result = substrate.query("SubtensorModule", "Uids", [net_uid, address], block_hash=block_hash)
         return bool(result)
     except Exception as e:
         logging.error(f"Failed to check subnet registration for {address} in subnet {net_uid}: {str(e)}")
         return False
 
-def get_total_hotkey_alpha(substrate, address: str, net_uid: int) -> float:
+def get_total_hotkey_alpha(substrate, address: str, net_uid: int, block_hash: str) -> float:
     try:
-        key = create_storage_key_cached("subtensorModule", "totalHotkeyAlpha", [address, net_uid])
-        result = substrate.query_map(key)
+        result = substrate.query("SubtensorModule", "TotalHotkeyAlpha", [address, net_uid], block_hash=block_hash)
+        print(f"hotkey alpha {result}")
         return float(str(result[0])) if result else 0.0
     except Exception as e:
         logging.error(f"Failed to get total hotkey alpha for {address} in subnet {net_uid}: {str(e)}")
         return 0.0
 
-def fetch_validator_info(substrate, address: str, block_hash: str) -> Dict[str, Any]:
+def fetch_validator_info(substrate, address: str, block_hash: str, delegate_info) -> Dict[str, Any]:
     try:
-        result = substrate.runtime_call(
-            api="DelegateInfoRuntimeApi",
-            method="get_delegates",
-            params=[]
-        )
-        delegate_info = result
-        chain_info = next((d for d in delegate_info if d['delegate_ss58'] == address), None)
+        chain_info = next((d for d in delegate_info if decode_account_id(d['delegate_ss58']) == address), None)
 
         if not chain_info:
             return {
@@ -122,20 +111,20 @@ def fetch_validator_info(substrate, address: str, block_hash: str) -> Dict[str, 
                 "url": None
             }
 
-        owner = chain_info.get('ownerSs58')
+        owner = decode_account_id(chain_info.get('owner_ss58'))
+
         if owner:
-            key = create_storage_key_cached("subtensorModule", "identitiesV2", [owner])
-            identity_bytes = substrate.query_map(key)
-            identity = identity_bytes[0].decode() if identity_bytes else None
+            identity= substrate.query("SubtensorModule", "IdentitiesV2", [owner], block_hash=block_hash)
+            print(f"identity bytes {identity}")
         else:
             identity = None
 
         return {
-            "name": identity.get('name', address) if identity else address,
-            "image": identity.get('image') if identity else None,
-            "description": identity.get('description') if identity else None,
+            "name": decode_string(identity.get('name', address)) if identity else address,
+            "image": decode_string( identity.get('image', '')) if identity else None,
+            "description": decode_string(identity.get('description', '')) if identity else None,
             "owner": owner,
-            "url": identity.get('url') if identity else None
+            "url": decode_string(identity.get('url', '')) if identity else None
         }
     except Exception as e:
         logging.error(f"Failed to fetch validator info for {address}: {str(e)}")
@@ -147,15 +136,9 @@ def fetch_validator_info(substrate, address: str, block_hash: str) -> Dict[str, 
             "url": None
         }
 
-def fetch_validator_stats(substrate, address: str, block_hash: str) -> Dict[str, Any]:
+def fetch_validator_stats(substrate, address: str, block_hash: str, delegate_info) -> Dict[str, Any]:
     try:
-        result = substrate.runtime_call(
-            api="DelegateInfoRuntimeApi",
-            method="get_delegates",
-            params=[]
-        )
-        delegate_info = result
-        info = next((d for d in delegate_info if d['delegate_ss58'] == address), None)
+        info = next((d for d in delegate_info if decode_account_id(d['delegate_ss58']) == address), None)
 
         if not info:
             return {
@@ -167,23 +150,23 @@ def fetch_validator_stats(substrate, address: str, block_hash: str) -> Dict[str,
                 "subnet_hotkey_alpha": {}
             }
 
-        return_per_1000 = int(info['returnPer1000'], 16) if isinstance(info['returnPer1000'], str) else info['returnPer1000']
+        return_per_1000 = int(info['return_per_1000'], 16) if isinstance(info['return_per_1000'], str) else info['return_per_1000']
         apy = calculate_apy_from_daily_return(return_per_1000)
 
         subnet_uids = get_subnet_uids(substrate, block_hash)
         subnet_hotkey_alpha = {}
 
         for net_uid in subnet_uids:
-            if is_registered_in_subnet(substrate, net_uid, address):
-                alpha = get_total_hotkey_alpha(substrate, address, net_uid)
+            if is_registered_in_subnet(substrate, net_uid, address, block_hash):
+                alpha = get_total_hotkey_alpha(substrate, address, net_uid, block_hash)
                 if alpha > 0:
                     subnet_hotkey_alpha[net_uid] = alpha
 
         return {
             "nominators": len(info.get('nominators', [])),
-            "daily_return": info.get('totalDailyReturn', 0.0),
+            "daily_return": info.get('total_daily_return', 0.0),
             "registrations": info.get('registrations', []),
-            "validator_permits": info.get('validatorPermits', []),
+            "validator_permits": info.get('validator_permits', []),
             "apy": apy,
             "subnet_hotkey_alpha": subnet_hotkey_alpha
         }
@@ -206,17 +189,27 @@ class ValidatorsShovel(ShovelBaseClass):
         self.starting_block = 4920351
 
     def process_block(self, n):
+        if n % 7200 != 0:
+            return
         try:
             substrate = get_substrate_client()
             (block_timestamp, block_hash) = get_block_metadata(n)
 
             create_validators_table(self.table_name)
-            validators = get_active_validators(substrate, block_hash)
+
+            delegate_info = substrate.runtime_call(
+                api="DelegateInfoRuntimeApi",
+                method="get_delegates",
+                params=[],
+                block_hash=block_hash
+            ).value
+
+            validators = get_active_validators(substrate, block_hash, delegate_info)
 
             for validator_address in validators:
                 try:
-                    info = fetch_validator_info(substrate, validator_address, block_hash)
-                    stats = fetch_validator_stats(substrate, validator_address, block_hash)
+                    info = fetch_validator_info(substrate, validator_address, block_hash, delegate_info)
+                    stats = fetch_validator_stats(substrate, validator_address, block_hash, delegate_info)
 
                     values = [
                         n,
