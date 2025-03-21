@@ -13,10 +13,12 @@ from typing import Dict, List, Any
 from typing import Union
 from scalecodec.utils.ss58 import ss58_encode
 import traceback
+import os
 
 set_debug_mode(True)
 
 SS58_FORMAT = 42
+FIRST_DTAO_BLOCK = int(os.getenv("FIRST_DTAO_BLOCK", "4920351"))
 
 def decode_account_id(account_id_bytes: Union[tuple[int], tuple[tuple[int]]]):
     if isinstance(account_id_bytes, tuple) and isinstance(account_id_bytes[0], tuple):
@@ -174,7 +176,7 @@ class ValidatorsShovel(ShovelBaseClass):
 
     def __init__(self, name):
         super().__init__(name)
-        self.starting_block = 5112000
+        self.starting_block = FIRST_DTAO_BLOCK
 
     def process_block(self, n):
         if n % 7200 != 0:
