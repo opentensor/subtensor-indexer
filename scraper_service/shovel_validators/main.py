@@ -81,7 +81,7 @@ def get_active_validators(substrate, block_hash: str, delegate_info) -> List[str
 def is_registered_in_subnet(substrate, net_uid: int, address: str, block_hash: str) -> bool:
     try:
         result = substrate.query("SubtensorModule", "Uids", [net_uid, address], block_hash=block_hash)
-        return bool(result)
+        return result is not None
     except Exception as e:
         logging.error(f"Failed to check subnet registration for {address} in subnet {net_uid}: {str(e)}")
         return False
