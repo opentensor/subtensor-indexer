@@ -27,7 +27,7 @@ toolz==0.12.1
 tqdm==4.66.4
 typing_extensions==4.12.2
 tzlocal==5.2
-urllib3==2.2.2
+urllib3==2.5.0
 websocket-client==1.8.0
 xxhash==3.4.1
 requests
